@@ -1,7 +1,11 @@
 package com.steamedbunx.android.camarangallerytester
 
+import android.Manifest
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener
+import com.karumi.dexter.listener.single.PermissionListener
 import com.steamedbunx.android.camarangallerytester.ui.main.MainFragment
 
 class MainActivity : AppCompatActivity() {
