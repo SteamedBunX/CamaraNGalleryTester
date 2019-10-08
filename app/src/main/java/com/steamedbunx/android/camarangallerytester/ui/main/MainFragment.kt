@@ -1,9 +1,11 @@
 package com.steamedbunx.android.camarangallerytester.ui.main
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.provider.MediaStore
@@ -18,8 +20,10 @@ import com.karumi.dexter.Dexter
 import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener
 import com.steamedbunx.android.camarangallerytester.R
 import com.steamedbunx.android.camarangallerytester.REQUESTCODE_CAMERA
+import com.steamedbunx.android.camarangallerytester.REQUESTCODE_GALLERY
 import com.steamedbunx.android.camarangallerytester.databinding.MainFragmentBinding
 import kotlinx.android.synthetic.main.main_fragment.*
+import java.net.URL
 
 
 class MainFragment : Fragment() {
@@ -107,24 +111,40 @@ class MainFragment : Fragment() {
 
     fun lunchCameraIntent() {
 //        Snackbar.make(requireView(), "Camera Intent Lunch here", Snackbar.LENGTH_LONG).show()
-        var intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        startActivityForResult(intent, REQUESTCODE_CAMERA)
-    }
-
-    fun lunchGalleryIntent() {
-        Snackbar.make(requireView(), "Gallery Intent Lunch here", Snackbar.LENGTH_LONG).show()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            REQUESTCODE_CAMERA -> updateBitmap(data?.extras?.get("data") as Bitmap)
-            else -> return
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+            startActivityForResult(intent, REQUESTCODE_CAMERA)
         }
     }
 
-    fun updateBitmap(newBitmap: Bitmap?){
-        if(newBitmap != null){
+    fun lunchGalleryIntent() {
+//        Snackbar.make(requireView(), "Gallery Intent Lunch here", Snackbar.LENGTH_LONG).show()
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "image/*"
+        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+            startActivityForResult(intent, REQUESTCODE_GALLERY)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                REQUESTCODE_CAMERA -> updateBitmapFromCamera(data?.data as Bitmap)
+                REQUESTCODE_GALLERY -> updateBitmapFromGallery(data?.data as Uri)
+                else -> return
+            }
+        }
+    }
+
+    fun updateBitmapFromCamera(newBitmap: Bitmap?) {
+        if (newBitmap != null) {
             imageView.setImageBitmap(newBitmap)
+        }
+    }
+
+    fun updateBitmapFromGallery(newImageUri: Uri) {
+        if (newImageUri != null) {
+            imageView.setImageURI(newImageUri)
         }
     }
 }
