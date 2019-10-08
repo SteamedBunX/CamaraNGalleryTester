@@ -129,7 +129,7 @@ class MainFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                REQUESTCODE_CAMERA -> updateBitmapFromCamera(data?.data as Bitmap)
+                REQUESTCODE_CAMERA -> updateBitmapFromCamera(data?.extras?.get("data") as Bitmap)
                 REQUESTCODE_GALLERY -> updateBitmapFromGallery(data?.data as Uri)
                 else -> return
             }
