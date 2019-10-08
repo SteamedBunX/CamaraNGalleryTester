@@ -1,20 +1,26 @@
 package com.steamedbunx.android.camarangallerytester.ui.main
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
+import com.google.android.material.snackbar.Snackbar
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener
-import com.karumi.dexter.listener.single.PermissionListener
 import com.steamedbunx.android.camarangallerytester.R
+import com.steamedbunx.android.camarangallerytester.REQUESTCODE_CAMERA
 import com.steamedbunx.android.camarangallerytester.databinding.MainFragmentBinding
+import kotlinx.android.synthetic.main.main_fragment.*
+
 
 class MainFragment : Fragment() {
 
@@ -43,17 +49,20 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        askStoragePermission()
     }
 
     fun onCameraClicked() {
         askCameraPermission()
-        checkCameraPermission()
+        if (checkCameraPermission()) {
+            lunchCameraIntent()
+        }
     }
 
     fun onGalleryClicked() {
         askStoragePermission()
-        checkStoragePermission()
+        if (checkStoragePermission()) {
+            lunchGalleryIntent()
+        }
     }
 
     fun askCameraPermission() {
@@ -96,4 +105,26 @@ class MainFragment : Fragment() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    fun lunchCameraIntent() {
+//        Snackbar.make(requireView(), "Camera Intent Lunch here", Snackbar.LENGTH_LONG).show()
+        var intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        startActivityForResult(intent, REQUESTCODE_CAMERA)
+    }
+
+    fun lunchGalleryIntent() {
+        Snackbar.make(requireView(), "Gallery Intent Lunch here", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            REQUESTCODE_CAMERA -> updateBitmap(data?.extras?.get("data") as Bitmap)
+            else -> return
+        }
+    }
+
+    fun updateBitmap(newBitmap: Bitmap?){
+        if(newBitmap != null){
+            imageView.setImageBitmap(newBitmap)
+        }
+    }
 }
