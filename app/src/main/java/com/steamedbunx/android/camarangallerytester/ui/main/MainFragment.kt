@@ -121,6 +121,7 @@ class MainFragment : Fragment() {
 //        Snackbar.make(requireView(), "Gallery Intent Lunch here", Snackbar.LENGTH_LONG).show()
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "image/*"
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
             startActivityForResult(intent, REQUESTCODE_GALLERY)
         }
