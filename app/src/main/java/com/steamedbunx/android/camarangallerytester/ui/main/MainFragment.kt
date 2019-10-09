@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
@@ -14,7 +15,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
+import androidx.core.net.toFile
 import androidx.databinding.DataBindingUtil
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener
@@ -23,6 +26,7 @@ import com.steamedbunx.android.camarangallerytester.REQUESTCODE_CAMERA
 import com.steamedbunx.android.camarangallerytester.REQUESTCODE_GALLERY
 import com.steamedbunx.android.camarangallerytester.databinding.MainFragmentBinding
 import kotlinx.android.synthetic.main.main_fragment.*
+import java.io.File
 import java.net.URL
 
 
@@ -145,7 +149,13 @@ class MainFragment : Fragment() {
 
     fun updateBitmapFromGallery(newImageUri: Uri) {
         if (newImageUri != null) {
-            imageView.setImageURI(newImageUri)
+            if (android.os.Build.VERSION.SDK_INT >= 29) {
+                var bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(File(newImageUri.path)))
+                imageView.setImageBitmap(bitmap)
+            }else{
+                var bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, newImageUri)
+                imageView.setImageBitmap(bitmap)
+            }
         }
     }
 }
