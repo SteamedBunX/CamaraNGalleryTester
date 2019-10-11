@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
+import android.media.Image
 import android.net.Uri
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
@@ -17,6 +18,8 @@ import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.net.toFile
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.karumi.dexter.Dexter
@@ -24,6 +27,9 @@ import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener
 import com.steamedbunx.android.camarangallerytester.R
 import com.steamedbunx.android.camarangallerytester.REQUESTCODE_CAMERA
 import com.steamedbunx.android.camarangallerytester.REQUESTCODE_GALLERY
+import com.steamedbunx.android.camarangallerytester.adapter.main.ImageListAdapter
+import com.steamedbunx.android.camarangallerytester.adapter.main.ImageListListeners
+import com.steamedbunx.android.camarangallerytester.data.ImageStored
 import com.steamedbunx.android.camarangallerytester.databinding.MainFragmentBinding
 import kotlinx.android.synthetic.main.main_fragment.*
 import java.io.File
@@ -44,7 +50,40 @@ class MainFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         binding = DataBindingUtil.inflate(inflater, R.layout.main_fragment, container, false)
+        val linearLayoutManager = LinearLayoutManager(context)
+        linearLayoutManager.orientation = LinearLayoutManager.HORIZONTAL
+        binding.recyclerViewImages.layoutManager = linearLayoutManager
+
+
+        // setup Listeners
+        val listeners = object : ImageListListeners {
+
+            override fun buttonDeleteOnClickListener(item: ImageStored) {
+                viewModel.removeImage(item)
+            }
+
+            override fun buttonCropOnClickListener() {
+                // not implemented but no breaking
+            }
+
+        }
+
+        // created an adapter with the Listeners
+        val adapter = ImageListAdapter(listeners)
+        binding.recyclerViewImages.adapter = adapter
+
+        viewModel.images.observe(this, Observer {
+            it?.let {
+                adapter.submitList(it)
+                adapter.notifyDataSetChanged()
+                Snackbar.make(requireView(), "update", Snackbar.LENGTH_SHORT).show()
+            }
+
+        })
+
+        binding.setLifecycleOwner(this)
         return binding.root
     }
 
@@ -144,17 +183,22 @@ class MainFragment : Fragment() {
     fun updateBitmapFromCamera(newBitmap: Bitmap?) {
         if (newBitmap != null) {
             imageView.setImageBitmap(newBitmap)
+            viewModel.addImage(newBitmap)
         }
     }
 
     fun updateBitmapFromGallery(newImageUri: Uri) {
         if (newImageUri != null) {
             if (android.os.Build.VERSION.SDK_INT >= 29) {
-                var bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(File(newImageUri.path)))
+                var bitmap =
+                    ImageDecoder.decodeBitmap(ImageDecoder.createSource(File(newImageUri.path)))
                 imageView.setImageBitmap(bitmap)
-            }else{
-                var bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, newImageUri)
+                viewModel.addImage(bitmap)
+            } else {
+                var bitmap =
+                    MediaStore.Images.Media.getBitmap(requireContext().contentResolver, newImageUri)
                 imageView.setImageBitmap(bitmap)
+                viewModel.addImage(bitmap)
             }
         }
     }

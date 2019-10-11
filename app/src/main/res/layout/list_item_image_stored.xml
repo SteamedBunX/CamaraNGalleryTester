@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="imageInfo"
+            type="com.steamedbunx.android.camarangallerytester.data.ImageStored" />
+        <variable
+            name="clickListners"
+            type="com.steamedbunx.android.camarangallerytester.adapter.main.ImageListListeners" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:orientation="vertical"
+        tools:layout_height="300dp">
+
+        <ImageView
+            android:id="@+id/image_thumbnail"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/image_content"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:image="@{imageInfo.image}" />
+
+        <Button
+            android:id="@+id/button_crop"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/ic_crop"
+            android:backgroundTint="@color/colorPrimary"
+            android:backgroundTintMode="src_in"
+            android:onClick="@{() -> clickListners.buttonCropOnClickListener()}"
+            app:layout_constraintBottom_toTopOf="@+id/button_delete"
+            app:layout_constraintDimensionRatio="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/image_thumbnail"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/button_delete"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/ic_delete"
+            android:backgroundTint="@color/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/image_thumbnail"
+            app:layout_constraintTop_toBottomOf="@+id/button_crop"
+            android:onClick="@{() -> clickListners.buttonDeleteOnClickListener(imageInfo)}"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
